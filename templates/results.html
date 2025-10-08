@@ -5,66 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Extraction Results</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        .results-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .face-card {
-            background-color: #34495e;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-        }
-
-        .face-card img {
-            max-width: 150px;
-            max-height: 150px;
-            display: block;
-            border-radius: 3px;
-        }
-
-        .results-header {
-            color: #2ecc71;
-            /* Green color for success message */
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .back-button {
-            padding: 10px 20px;
-            background-color: #3429db; 
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.2s;
-        }
-
-        .back-button:hover {
-            background-color: #2980b9;
-        }
-
-
-        .download-button {
-            padding: 10px 20px;
-            background-color: #f39c12;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-
-            transition: background-color 0.2s
-        }
-
-        .download-button:hover {
-            background-color: #e67e22;
-        }
-    </style>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/results_styles.css') }}"> 
 </head>
 
 <body>
@@ -73,6 +17,7 @@
     <div class="input-box">
         {% if count > 0 %}
         <h3 class="results-header">Successfully Extracted {{ count }} Face(s)!</h3>
+        <h4 class="sub-heading">Preview of Extracted Faces: </h4>
         {% else %}
         <h3 class="results-header" style="color: #e74c3c;">No Faces Extracted. Try different filters or image.</h3>
         {% endif %}
@@ -84,7 +29,7 @@
                     alt="Extracted Face">
             </div>
             {% endfor %}
-        </div>
+        </div> 
 
         <div style="text-align: center; margin-top: 30px;">
             {% if count > 0 %}
