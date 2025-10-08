@@ -56,8 +56,9 @@ def recheck_face_validity(cropped_face_img, dnn_net, confidence_threshold=CONFID
             max_confidence = confidence
     return max_confidence >= confidence_threshold, max_confidence
     
-# Processing Function
+# Processing Function (The correct, consolidated function)
 def process_image_and_extract(image_path, filters):
+    
     image = cv2.imread(image_path)
     if image is None:
         return {"error": "Could not read image."}
@@ -95,17 +96,18 @@ def process_image_and_extract(image_path, filters):
             if not is_valid_face:
                 continue
         
-        # 4. Manual Check (This filter is handled by skipping, as web apps cannot pause for manual cv2 input)
-        # If 'manual-check' is present, the faces that pass other checks are automatically saved.
+        # 4. Manual Check is skipped in web app, face proceeds to save
 
-        face_filename = f'face_{i:04d}_cropped.jpg'
+        # Create filename with session ID prefix
+        face_filename = f'{session_id}_face_{i:04d}_cropped.jpg'
+        
         full_output_path = os.path.join(session_output_dir, face_filename)
         cv2.imwrite(full_output_path, cropped_face)
 
         saved_faces_info.append(os.path.join(session_id, face_filename))
     return {"faces": saved_faces_info, "session_id": session_id}
 
-# Flask Routes
+# Flask Routes (rest of the code remains the same)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -146,12 +148,15 @@ def extract():
 
 @app.route('/results/<session_id>/<int:count>')
 def results(session_id, count):
-    # Renders Result Page
+    
+    face_files = [os.path.join(session_id, f) 
+                  for f in os.listdir(os.path.join(OUTPUT_DIR, session_id)) 
+                  if f.endswith('.jpg')] 
 
-    face_files = [os.path.join(session_id, f) for f in os.listdir(os.path.join(OUTPUT_DIR, session_id)) if f.endswith('.jpg')] 
+    face_files_url_safe = [f.replace(os.path.sep, '/') for f in face_files]
 
     return render_template('results.html',
-                           face_files=face_files,
+                           face_files=face_files_url_safe, 
                            count=count,
                            session_id=session_id)
 
@@ -171,38 +176,22 @@ def download_zip(session_id):
 
     with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
         for filename in os.listdir(session_output_dir):
-            # FIX: Correct the tuple syntax for 'endswith'
             if filename.endswith(('.jpg', '.jpeg', '.png')): 
                 file_path = os.path.join(session_output_dir, filename)
                 zf.write(file_path, arcname=filename)
+    
     memory_file.seek(0)
     zip_filename = f'{session_id}_extracted_faces.zip'
     
+    # Using send_file for in-memory transfer (Correct Method)
     return send_file(
         memory_file,
         download_name=zip_filename,
         as_attachment=True,
         mimetype='application/zip'
     )
-    # return send_from_directory(
-    #     os.path.dirname(session_output_dir),
-    #     os.path.basename(session_output_dir) + ".zip",
-    #     as_attachment=True,
-    #     mimetype='application/zip'
-    # )
-    zip_filename = f'{session_id}_extracted_faces.zip'
-    zip_path = os.path.join(os.path.dirname(session_output_dir), zip_filename)
-
-    with open(zip_path, 'wb') as f:
-        f.write(memory_file.getvalue())
-
-    return send_from_directory(
-        os.path.dirname(session_output_dir),
-        zip_filename,
-        as_attachment=True
-    )
+    # The rest of the original download_zip function is correctly removed as it was unreachable.
 
 if __name__ == '__main__':
     app.secret_key = 'password'
     app.run(debug=True)
-  
