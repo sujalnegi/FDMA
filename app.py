@@ -8,7 +8,6 @@ import zipfile
 from io import BytesIO
 
 
-# --- Configuration ---
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 OUTPUT_DIR = 'out-img'
@@ -20,7 +19,6 @@ CONFIDENCE_THRESHOLD = 0.5
 MIN_CROP_DIMENSION = 80
 BLUR_THRESHOLD = 150.
 
-# Flask App Setup
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER 
 
@@ -56,7 +54,6 @@ def recheck_face_validity(cropped_face_img, dnn_net, confidence_threshold=CONFID
             max_confidence = confidence
     return max_confidence >= confidence_threshold, max_confidence
     
-# Processing Function (The correct, consolidated function)
 def process_image_and_extract(image_path, filters):
     
     image = cv2.imread(image_path)
@@ -70,35 +67,26 @@ def process_image_and_extract(image_path, filters):
 
     saved_faces_info = []
 
-    # Generate a unique directory for this session's output
     session_id = str(int(time.time()))
     session_output_dir = os.path.join(OUTPUT_DIR, session_id)
     os.makedirs(session_output_dir, exist_ok=True) 
 
-    # Loop thru faces
     for i, (x, y, w, h) in enumerate(faces):
         cropped_face = image[y:y+h, x:x+w]
 
-        # Apply filters based on frontend selection
-        # 1. Resolution Check
         if 'resolution-check' in filters and (w < MIN_CROP_DIMENSION or h < MIN_CROP_DIMENSION):
             continue
 
-        # 2. Blurr Check
         if 'blur-check' in filters:
             is_blurry_flag, _ = is_blurry(cropped_face, BLUR_THRESHOLD)
             if is_blurry_flag:
                 continue
 
-        # 3. DNN Recheck
         if 'dnn-recheck' in filters:
             is_valid_face, _ = recheck_face_validity(cropped_face, net, CONFIDENCE_THRESHOLD)
             if not is_valid_face:
                 continue
         
-        # 4. Manual Check is skipped in web app, face proceeds to save
-
-        # Create filename with session ID prefix
         face_filename = f'{session_id}_face_{i:04d}_cropped.jpg'
         
         full_output_path = os.path.join(session_output_dir, face_filename)
@@ -107,7 +95,6 @@ def process_image_and_extract(image_path, filters):
         saved_faces_info.append(os.path.join(session_id, face_filename))
     return {"faces": saved_faces_info, "session_id": session_id}
 
-# Flask Routes (rest of the code remains the same)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -127,23 +114,19 @@ def extract():
 
     username = request.form.get('username', 'anonymous')
 
-    # Gets Values from checkboxes
     filters_active = request.form.getlist('filter-options')
 
-    # 3. Save the uploaded file
     filename = secure_filename(file.filename)
     unique_filename = f"{username}_{int(time.time())}_{filename}"
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename) 
 
     file.save(file_path)
 
-    # 4. Process the image
     results = process_image_and_extract(file_path, filters_active) 
 
     if "error" in results:
         return f"Error: {results['error']}"
 
-    # 5. redirect to a result page
     return redirect(url_for('results', session_id=results['session_id'], count=len(results['faces']))) 
 
 @app.route('/results/<session_id>/<int:count>')
@@ -183,14 +166,13 @@ def download_zip(session_id):
     memory_file.seek(0)
     zip_filename = f'{session_id}_extracted_faces.zip'
     
-    # Using send_file for in-memory transfer (Correct Method)
     return send_file(
         memory_file,
         download_name=zip_filename,
         as_attachment=True,
         mimetype='application/zip'
     )
-    # The rest of the original download_zip function is correctly removed as it was unreachable.
+    
 
 if __name__ == '__main__':
     app.secret_key = 'password'
