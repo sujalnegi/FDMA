@@ -6,6 +6,8 @@ from werkzeug.utils import secure_filename
 import time
 import zipfile
 from io import BytesIO
+from datetime import datetime
+import base64
 
 
 UPLOAD_FOLDER = 'uploads'
@@ -95,6 +97,55 @@ def process_image_and_extract(image_path, filters):
         saved_faces_info.append(os.path.join(session_id, face_filename))
     return {"faces": saved_faces_info, "session_id": session_id}
 
+def process_video_file_and_extract(video_path, filters):
+    cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        return {"error": "Could not open video file."}
+    saved_faces_info =[]
+
+    session_id = str(int(time.time()))
+    session_output_dir = os.path.join(OUTPUT_DIR, session_id)
+    os.makedirs(session_output_dir, exist_ok=True)
+
+    frame_count = 0
+    face_count = 0
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        frame_count += 1
+
+        if frame_count % 5 != 0:
+            continue
+        
+        image = frame
+        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(
+            gray_image, scaleFactor=1.05, minNeighbors=5, minSize=(50, 50)
+        )
+        for (x, y, w, h) in faces:
+            
+            cropped_face = image[y:y+h, x:x+w]
+            if 'resolution-check' in filters and (w < MIN_CROP_DIMENSION or h < MIN_CROP_DIMENSION):
+                continue
+            if 'blur-check' in filters:
+                is_blurry_flag, _ = is_blurry(cropped_face, BLUR_THRESHOLD)
+                if is_blurry_flag:
+                    continue
+            if 'dnn-recheck' in filters:
+                is_valid_face, _ = recheck_face_validity(cropped_face, net, CONFIDENCE_THRESHOLD)
+                if not is_valid_face:
+                    continue
+            
+            face_filename = f'{session_id}_face_{face_count:04d}_cropped.jpg'
+            full_output_path = os.path.join(session_output_dir, face_filename)
+            cv2.imwrite(full_output_path, cropped_face)
+
+            saved_faces_info.append(os.path.join(session_id, face_filename))
+            face_count += 1
+    cap.release()
+    return {"faces": saved_faces_info, "session_id": session_id}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -143,10 +194,46 @@ def results(session_id, count):
                            count=count,
                            session_id=session_id)
 
+@app.route('/video_upload', methods=['POST'])
+def video_upload():
+
+    if 'video-upload' not in request.files:
+        return redirect(url_for('home')) # Redirect if no file field
+
+    file = request.files['video-upload']
+    
+    if file.filename == '' or not file.filename.lower().endswith(('.mp4', '.avi', '.mov')):
+        return redirect(url_for('home'))
+
+    username = request.form.get('username', 'video_user')
+    filters_active = request.form.getlist('filter-options')
+
+    filename = secure_filename(file.filename)
+    unique_filename = f"{username}_{int(time.time())}_{filename}"
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename) 
+    file.save(file_path)
+
+    results = process_video_file_and_extract(file_path, filters_active) 
+
+    os.remove(file_path)
+
+    if "error" in results:
+        return f"Error processing video: {results['error']}"
+
+    return redirect(url_for('results', session_id=results['session_id'], count=len(results['faces'])))
+
+@app.route('/video')
+def video_page():
+    return render_template('video_upload.html')
+
 @app.route('/out-img/<session_id>/<filename>')
 def serve_face(session_id, filename):
     full_path = os.path.join(OUTPUT_DIR, session_id)
     return send_from_directory(full_path, filename)
+
+@app.route('/webcam')
+def webcam_page():
+    return render_template('webcam.html')
 
 @app.route('/download_zip/<session_id>')
 def download_zip(session_id):
