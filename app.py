@@ -8,6 +8,7 @@ import zipfile
 from io import BytesIO
 from datetime import datetime
 import base64
+from flask import Flask, request, render_template, redirect, url_for, jsonify
 
 
 UPLOAD_FOLDER = 'uploads'
@@ -234,6 +235,38 @@ def serve_face(session_id, filename):
 @app.route('/webcam')
 def webcam_page():
     return render_template('webcam.html')
+
+@app.route('/webcam_capture', methods=['POST'])
+def webcam_capture():
+    """Receives a recorded video, processes it, and redirects to results."""
+    if 'video-blob' not in request.files:
+        return redirect(url_for('home'))
+
+    file = request.files['video-blob']
+    if file.filename == '':
+        return redirect(url_for('home'))
+
+    # Get filters selected by the user from the form
+    filters_active = request.form.getlist('filter-options')
+
+    # Save the webcam recording temporarily
+    filename = f"webcam_{int(time.time())}.webm"
+    temp_video_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filename))
+    file.save(temp_video_path)
+
+    # Use the existing video processing function
+    results = process_video_file_and_extract(temp_video_path, filters_active)
+
+    # Clean up by deleting the temporary video file
+    os.remove(temp_video_path)
+
+    if "error" in results:
+        return f"Error processing webcam video: {results['error']}"
+
+    return redirect(url_for('results', session_id=results['session_id'], count=len(results['faces'])))    
+@app.route('/about')
+def about_page():
+    return render_template('about.html')
 
 @app.route('/download_zip/<session_id>')
 def download_zip(session_id):
