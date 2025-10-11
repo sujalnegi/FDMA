@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Face Extractor</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
+    <style>
+        .input-box {
+            max-width: 500px;
+        }
+        #webcam-preview {
+            border: 2px solid #5d6d7e;
+            border-radius: 5px;
+            background-color: #19232e;
+        }
+        #status-text {
+            color: #f39c12;
+            font-weight: bold;
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <img class="log" src="{{ url_for('static', filename='images/logo.png')}}" alt="logo" style="width: 45px; margin: 15px;">
+        <div class="navbar-brand">Webcam Extractor</div>
+        <ul class = navbar-links>
+            <li><a href="{{url_for('home')}}">Image</a></li>
+            <li><a href="{{url_for('video_page')}}">Video</a></li>
+            <li><a href="{{url_for('about_page')}}">About</a></li>
+        </ul>
+    </div>
+    
+    <span id="header-span">Live Capture & Extraction</span>
+
+    <form id="webcam-form" method="POST" action="{{url_for('webcam_capture')}}" enctype="multipart/form-data">
+        <div class="input-box">
+            <video id="webcam-preview" width="480" height="360" autoplay muted></video>
+            <p id="status-text" style="text-align: center;">Press "Record to start a 10 second capture</p>
+
+            <div class="filter-section">
+                <p>Select Filters:</p>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="filter-options" value="resolution-check"> 1. Resolution Check</label>
+                    <label><input type="checkbox" name="filter-options" value="blur-check" checked> 2. Blurr Check</label>
+                    <label><input type="checkbox" name="filter-options" value="dnn-recheck" checked> 3. DNN re-check</label>
+                </div>
+            </div>
+
+            <button type="button" id="record-button" class="submit-button">Record 10 Seconds</button>
+        </div>
+    </form>
+<script>
+    const recordButton = document.getElementById('record-button');
+    const webcamPreview = document.getElementById('webcam-preview');
+    const statusText = document.getElementById('status-text');
+    const webcamForm = document.getElementById('webcam-form');
+
+    let mediaRecorder;
+    let recordedChunks = [];
+
+    if (!window.MediaRecorder) {
+        statusText.textContent = "Error: MediaRecorder API not supported by your browser.";
+        recordButton.disabled = true;
+    }
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then(stream => {
+            webcamPreview.srcObject = stream;
+        })
+        .catch(err => {
+            statusText.textContent = "Error: Could not access webcam. Please grant permission.";
+            console.error("getUserMedia error:", err);
+            recordButton.disabled = true;
+        });
+
+    recordButton.addEventListener('click', () => {
+        if (!webcamPreview.srcObject) {
+            alert("Webcam is not available.");
+            return;
+        }
+
+        recordButton.disabled = true;
+        recordedChunks = [];
+        
+        try {
+            const stream = webcamPreview.srcObject;
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    recordedChunks.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
+                const videoFile = new File([videoBlob], "webcam-video.webm", { type: 'video/webm' });
+
+                const formData = new FormData(webcamForm);
+                formData.set('video-blob', videoFile); 
+
+                fetch("{{ url_for('webcam_capture') }}", {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    }
+                })
+                .catch(error => {
+                    statusText.textContent = 'Upload failed. Please try again.';
+                    console.error('Error:', error);
+                    recordButton.disabled = false; 
+                });
+            };
+
+            mediaRecorder.start();
+            let timeLeft = 10;
+            statusText.textContent = `Recording... ${timeLeft}s left.`;
+
+            const countdown = setInterval(() => {
+                timeLeft--;
+                statusText.textContent = `Recording... ${timeLeft}s left.`;
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    mediaRecorder.stop();
+                    statusText.textContent = 'Processing video... Please wait.';
+                }
+            }, 1000);
+
+        } catch (e) {
+            statusText.textContent = "Error: Could not start recorder. Browser may not support video/webm format.";
+            console.error("MediaRecorder Error:", e);
+            recordButton.disabled = false; // Re-enable the button if it fails
+            return;
+        }
+    });
+</script>    
+
+
+</body>
+</html>
