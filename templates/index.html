@@ -1,71 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Face Extractor</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico')}}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .file-input-wrapper {
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        #file-name-display-label {
+            color: #bdc3c7;
+            font-style: italic;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%; 
+        }
+    </style>
 </head>
 
 <body>
     <div class="navbar">
-        <img class="logo" src="static/images/logo.png" alt="logo">
-        <div class="navbar-brand">Face Extractor</div>
+        <div class="navbar-brand-container">
+            <img class="logo" src="{{url_for('static', filename='images/logo.png')}}" alt="logo">
+            <div class="navbar-brand">Face Extractor</div>
+        </div>
         <ul class="navbar-links">
-            <li><a href=#webcam>WebCam</a></li>
-            <li><a href=#webcam>Video</a></li>
-            <li><a href="#about">About</a></li>
+            <li><a href="{{ url_for('video_page') }}">Video</a></li>
+            <li><a href="{{ url_for('webcam_page') }}">WebCam</a></li>
+            <li><a href="{{ url_for('about_page')}}">About</a></li>
         </ul>
     </div>
 
     <span id="header-span">Extract Faces!</span>
 
     <form action="/extract" method="POST" enctype="multipart/form-data">
-
         <div class="input-box">
-
-            <div class="input-field file-upload-label">
-                <label for="image-upload">Upload Image:</label>
-                <input type="file" id="image-upload" name="image-upload" accept="image/*" required
-                    onchange="previewFile()">
-
+            
+            <div class="input-field file-input-wrapper">
+                <input type="file" id="image-upload" name="image-upload" accept="image/*" required onchange="previewFile()">
                 <label for="image-upload" class="custom-file-upload">Choose File</label>
+                <span id="file-name-display-label">No file selected.</span>
             </div>
 
-            <div id="file-preview-container"
-                style="display: none; text-align: center; border-top: 1px solid #5d6d7e; padding-top: 15px;">
+            <div id="file-preview-container" style="display: none; text-align: center; border-top: 1px solid #5d6d7e; padding-top: 15px;">
                 <p id="file-name-display" style="font-weight: bold; margin-bottom: 10px; color: #f39c12;"></p>
-                <img id="image-preview" src="#" alt="Image Preview"
-                    style="max-width: 100%; max-height: 200px; margin-left:115px; border-radius: 5px; display: none;">
+                <img id="image-preview" src="#" alt="Image Preview" style="max-width: 100%; max-height: 200px; border-radius: 5px; display: none;">
             </div>
 
             <div class="filter-section">
                 <p>Select Filters:</p>
                 <div class="checkbox-group">
-                    <label for="filter-res">
-                        <input type="checkbox" id="filter-res" name="filter-options" value="resolution-check">
-                        1. Resolution Check
+                    <label>
+                        <input type="checkbox" name="filter-options" value="resolution-check"> 1. Resolution Check
                     </label>
-                    <label for="filter-blur">
-                        <input type="checkbox" id="filter-blur" name="filter-options" value="blur-check" checked>
-                        2. Blurr check
+                    <label>
+                        <input type="checkbox" name="filter-options" value="blur-check" checked> 2. Blurr check
                     </label>
-                    <label for="filter-dnn">
-                        <input type="checkbox" id="filter-dnn" name="filter-options" value="dnn-recheck" checked>
-                        3. DNN Model Re-check
+                    <label>
+                        <input type="checkbox" name="filter-options" value="dnn-recheck" checked> 3. DNN Model Re-check
                     </label>
                 </div>
             </div>
-
+            
+            <div style="text-align: center;">
+                 <button type="submit" class="submit-button">Extract Faces Now</button>
+            </div>
         </div>
-
-        <button type="submit" class="submit-button">Extract Faces Now</button>
-
     </form>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-
 </body>
-
 </html>
