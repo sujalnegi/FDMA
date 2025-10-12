@@ -1,6 +1,6 @@
 # Face Extractor Web Application
 
-![Face Extractor Screenshot](https://ibb.co/3Y9PcwwW)
+![Face Extractor Screenshot](https://i.ibb.co/Z1pbx33K/image.png)
 
 Face Extractor is a powerful and intuitive web application built with Flask and OpenCV that allows users to automatically detect, filter, and extract high-quality human faces from images, videos, and live webcam streams.
 
@@ -44,7 +44,7 @@ Follow these steps to get the application running on your local machine.
 Clone this repository to your local machine using Git:
 
 ```bash
-git clone [https://github.com/sujalnegi/FDMA.git](https://github.com/sujalnegi/FDMA.git)
+git clone https://github.com/sujalnegi/FDMA.git
 cd FDMA
 ```
 ### 3. Create a Virtual Environment
@@ -77,8 +77,9 @@ python app.py
 ```
 Now, open your web browser and navigate to the following address:
 
-https://www.google.com/search?q=http://127.0.0.1:5000
-
+```
+http://127.0.0.1:5000/
+```
 You should see the Face Extractor application running!
 
 ### How to Use
