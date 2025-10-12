@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Webcam Face Extractor</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
-    </head>
+</head>
 
 <body>
     <div class="navbar">
@@ -26,20 +27,27 @@
     <form id="webcam-form" method="POST" action="{{url_for('webcam_capture')}}" enctype="multipart/form-data">
         <div class="input-box">
             <video id="webcam-preview" autoplay muted></video>
-            
+
             <p id="status-text">Press "Record" to start a 10-second capture.</p>
 
             <div class="filter-section">
                 <p>Select Filters:</p>
                 <div class="checkbox-group">
-                    <label><input type="checkbox" name="filter-options" value="resolution-check"> 1. Resolution Check</label>
-                    <label><input type="checkbox" name="filter-options" value="blur-check" checked> 2. Blurr Check</label>
-                    <label><input type="checkbox" name="filter-options" value="dnn-recheck" checked> 3. DNN re-check</label>
+                    <label><input type="checkbox" name="filter-options" value="resolution-check"> 1. Resolution
+                        Check</label>
+                    <label><input type="checkbox" name="filter-options" value="blur-check" > 2. Blurr
+                        Check</label>
+                    <label><input type="checkbox" name="filter-options" value="dnn-recheck" checked> 3. DNN
+                        re-check</label>
+                    <!-- <label style="margin-top: 10px; color: #2ecc71;">
+                        <input type="checkbox" name="remove-duplicates" value="true" checked>
+                        <strong>Remove Duplicate Faces</strong>
+                    </label> -->
                 </div>
             </div>
 
             <div style="text-align: center;">
-                 <button type="button" id="record-button" class="submit-button">Record 10 Seconds</button>
+                <button type="button" id="record-button" class="submit-button">Record 10 Seconds</button>
             </div>
         </div>
     </form>
@@ -76,7 +84,7 @@
 
             recordButton.disabled = true;
             recordedChunks = [];
-            
+
             try {
                 const stream = webcamPreview.srcObject;
                 mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
@@ -92,22 +100,22 @@
                     const videoFile = new File([videoBlob], "webcam-video.webm", { type: 'video/webm' });
 
                     const formData = new FormData(webcamForm);
-                    formData.set('video-blob', videoFile); 
+                    formData.set('video-blob', videoFile);
 
                     fetch("{{ url_for('webcam_capture') }}", {
                         method: 'POST',
                         body: formData
                     })
-                    .then(response => {
-                        if (response.redirected) {
-                            window.location.href = response.url;
-                        }
-                    })
-                    .catch(error => {
-                        statusText.textContent = 'Upload failed. Please try again.';
-                        console.error('Error:', error);
-                        recordButton.disabled = false; 
-                    });
+                        .then(response => {
+                            if (response.redirected) {
+                                window.location.href = response.url;
+                            }
+                        })
+                        .catch(error => {
+                            statusText.textContent = 'Upload failed. Please try again.';
+                            console.error('Error:', error);
+                            recordButton.disabled = false;
+                        });
                 };
 
                 mediaRecorder.start();
@@ -127,10 +135,11 @@
             } catch (e) {
                 statusText.textContent = "Error: Could not start recorder. Browser may not support video/webm format.";
                 console.error("MediaRecorder Error:", e);
-                recordButton.disabled = false; 
+                recordButton.disabled = false;
                 return;
             }
         });
     </script>
 </body>
+
 </html>
