@@ -1,95 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Extractor</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico')}}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <style>
-        /* CSS to hide the ugly default file input while keeping the custom label functional */
-        .input-field input[type="file"] {
-            /* Position it off-screen but keep it accessible for the label click */
-            width: 0.1px;
-            height: 0.1px;
-            opacity: 0;
+        .file-input-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        #file-name-display-label {
+            color: #bdc3c7;
+            font-style: italic;
+            margin-top: 10px;
+            white-space: nowrap;
             overflow: hidden;
-            position: absolute;
-            z-index: -1;
+            text-overflow: ellipsis;
+            max-width: 250px;
         }
     </style>
 </head>
 
 <body>
     <div class="navbar">
-        <img class="logo" src="{{ url_for('static', filename='images/logo.png') }}" alt="logo">
-        <div class="navbar-brand">Video Extractor</div>
+        <div class="navbar-brand-container">
+            <img class="logo" src="{{url_for('static', filename='images/logo.png')}}" alt="logo">
+            <div class="navbar-brand">Video Extractor</div>
+        </div>
         <ul class="navbar-links">
             <li><a href="{{ url_for('home') }}">Image</a></li>
-            <!-- <li><a href="#webcam">WebCam</a></li> -->
-            <li><a href="#about">About</a></li>
+            <li><a href="{{ url_for('webcam_page') }}">WebCam</a></li>
+            <li><a href="{{ url_for('about_page')}}">About</a></li>
         </ul>
     </div>
 
-    <span id="header-span" style="margin-left: 25px;">Extract Faces from Video!</span>
+    <span id="header-span">Extract Faces from Video!</span>
 
     <form action="{{ url_for('video_upload') }}" method="POST" enctype="multipart/form-data">
-
         <div class="input-box">
-            
-            
 
-            <div class="input-field file-upload-label">
-                <label for="video-upload">Upload Video File (.mp4, .mov, etc.):</label>
-                <input type="file" id="video-upload" name="video-upload" accept="video/*" required
-                    onchange="previewFile()">
-
-                <label for="video-upload" class="custom-file-upload" style="margin-top: 15px;">Choose Video File</label>
-            </div>
-
-            <div id="file-preview-container"
-                style="text-align: center; border-top: 1px solid #5d6d7e; padding-top: 15px;">
-                <p id="file-name-display" style="font-weight: normal; margin-bottom: 10px; color: #f39c12;"></p>
+            <div class="input-field file-input-wrapper">
+                <label for="video-upload" style="font-weight: bold; color: #bdc3c7; margin-bottom: 5px;">Upload Video File (.mp4, .mov, etc.):</label>
+                <input type="file" id="video-upload" name="video-upload" accept="video/*" required onchange="updateFileName()">
+                <label for="video-upload" class="custom-file-upload">Choose Video File</label>
+                <span id="file-name-display-label">No file selected.</span>
             </div>
 
             <div class="filter-section">
                 <p>Select Filters:</p>
                 <div class="checkbox-group">
-                    <label for="filter-res">
-                        <input type="checkbox" id="filter-res" name="filter-options" value="resolution-check" checked>
-                        1. Resolution Check
+                    <label>
+                        <input type="checkbox" name="filter-options" value="resolution-check" checked> 1. Resolution Check
                     </label>
-                    <label for="filter-blur">
-                        <input type="checkbox" id="filter-blur" name="filter-options" value="blur-check" checked>
-                        2. Blurr check
+                    <label>
+                        <input type="checkbox" name="filter-options" value="blur-check" checked> 2. Blurr check
                     </label>
-                    <label for="filter-dnn">
-                        <input type="checkbox" id="filter-dnn" name="filter-options" value="dnn-recheck" checked>
-                        3. DNN Model Re-check
+                    <label>
+                        <input type="checkbox" name="filter-options" value="dnn-recheck" checked> 3. DNN Model Re-check
                     </label>
                 </div>
             </div>
 
+            <div style="text-align: center;">
+                 <button type="submit" class="submit-button">Extract Faces Now</button>
+            </div>
         </div>
-
-        <button type="submit" class="submit-button" style="margin-left: 140px;">Extract Faces Now</button>
-
     </form>
 
     <script>
-        function previewFile() {
+        function updateFileName() {
             const fileInput = document.getElementById('video-upload');
-            const fileNameDisplay = document.getElementById('file-name-display');
-            const previewContainer = document.getElementById('file-preview-container');
-            if (fileInput.files.length > 0) {
-                fileNameDisplay.textContent = 'File selected: ' + fileInput.files[0].name;
-                previewContainer.style.display = 'block';
+            const fileNameLabel = document.getElementById('file-name-display-label');
+            
+            if (fileInput.files && fileInput.files.length > 0) {
+                fileNameLabel.textContent = "File selected: " + fileInput.files[0].name;
             } else {
-                fileNameDisplay.textContent = '';
-                previewContainer.style.display = 'none';
+                fileNameLabel.textContent = 'No file selected.';
             }
         }
     </script>
 </body>
-
 </html>
