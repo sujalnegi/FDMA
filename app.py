@@ -9,7 +9,8 @@ from io import BytesIO
 from datetime import datetime
 import base64
 from flask import Flask, request, render_template, redirect, url_for, jsonify
-
+import imagehash
+from PIL import Image
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -98,47 +99,59 @@ def process_image_and_extract(image_path, filters):
         saved_faces_info.append(os.path.join(session_id, face_filename))
     return {"faces": saved_faces_info, "session_id": session_id}
 
-def process_video_file_and_extract(video_path, filters):
+def process_video_file_and_extract(video_path, filters, remove_duplicates=False):
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
-        return {"error": "Could not open video file."}
-    saved_faces_info =[]
-
+        return {"error": "Could not open video file"}
+    saved_faces_info = []
     session_id = str(int(time.time()))
     session_output_dir = os.path.join(OUTPUT_DIR, session_id)
     os.makedirs(session_output_dir, exist_ok=True)
 
     frame_count = 0
     face_count = 0
+    seen_hashes = set()
 
     while True:
         ret, frame = cap.read()
-        if not ret:
+        if not ret: 
             break
         frame_count += 1
 
-        if frame_count % 5 != 0:
+        if frame_count %5 != 0:
             continue
-        
         image = frame
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(
-            gray_image, scaleFactor=1.05, minNeighbors=5, minSize=(50, 50)
+            gray_image, scaleFactor=1.05, minNeighbors=5, minSize=(50,50)
         )
-        for (x, y, w, h) in faces:
-            
+        for(x, y, w, h) in faces:
             cropped_face = image[y:y+h, x:x+w]
-            if 'resolution-check' in filters and (w < MIN_CROP_DIMENSION or h < MIN_CROP_DIMENSION):
+
+            if remove_duplicates:
+                pil_image = Image.fromarray(cv2.cvtColor(cropped_face, cv2.COLOR_BGR2RGB))
+                current_hash = imagehash.phash(pil_image)
+
+                is_duplicate = False
+                for seen_hash in seen_hashes:
+                    if current_hash - seen_hash <5:
+                        is_duplicate = True
+                        break
+                
+                if is_duplicate:
+                    continue
+                seen_hashes.add(current_hash)
+            if 'resolution-check' in filters and (w < MIN_CROP_DIMENSION or h < MIN_CROP_DIMENSION): 
                 continue
             if 'blur-check' in filters:
                 is_blurry_flag, _ = is_blurry(cropped_face, BLUR_THRESHOLD)
-                if is_blurry_flag:
+                if is_blurry_flag:    
                     continue
+
             if 'dnn-recheck' in filters:
                 is_valid_face, _ = recheck_face_validity(cropped_face, net, CONFIDENCE_THRESHOLD)
                 if not is_valid_face:
                     continue
-            
             face_filename = f'{session_id}_face_{face_count:04d}_cropped.jpg'
             full_output_path = os.path.join(session_output_dir, face_filename)
             cv2.imwrite(full_output_path, cropped_face)
@@ -147,6 +160,7 @@ def process_video_file_and_extract(video_path, filters):
             face_count += 1
     cap.release()
     return {"faces": saved_faces_info, "session_id": session_id}
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -198,23 +212,21 @@ def results(session_id, count):
 @app.route('/video_upload', methods=['POST'])
 def video_upload():
 
+    file = request.files['video-upload']
     if 'video-upload' not in request.files:
         return redirect(url_for('home')) # Redirect if no file field
 
-    file = request.files['video-upload']
-    
-    if file.filename == '' or not file.filename.lower().endswith(('.mp4', '.avi', '.mov')):
-        return redirect(url_for('home'))
-
     username = request.form.get('username', 'video_user')
     filters_active = request.form.getlist('filter-options')
+    remove_duplicates = 'remove-duplicates' in request.form
+
 
     filename = secure_filename(file.filename)
     unique_filename = f"{username}_{int(time.time())}_{filename}"
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename) 
     file.save(file_path)
 
-    results = process_video_file_and_extract(file_path, filters_active) 
+    results = process_video_file_and_extract(file_path, filters_active, remove_duplicates) 
 
     os.remove(file_path)
 
@@ -238,32 +250,31 @@ def webcam_page():
 
 @app.route('/webcam_capture', methods=['POST'])
 def webcam_capture():
-    """Receives a recorded video, processes it, and redirects to results."""
     if 'video-blob' not in request.files:
         return redirect(url_for('home'))
-
     file = request.files['video-blob']
+
+    filters_active = request.form.getlist('filter-options')
+
     if file.filename == '':
         return redirect(url_for('home'))
 
-    # Get filters selected by the user from the form
     filters_active = request.form.getlist('filter-options')
+    remove_duplicates = 'remove-duplicates' in request.form
 
-    # Save the webcam recording temporarily
     filename = f"webcam_{int(time.time())}.webm"
     temp_video_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filename))
     file.save(temp_video_path)
 
-    # Use the existing video processing function
-    results = process_video_file_and_extract(temp_video_path, filters_active)
+    results = process_video_file_and_extract(temp_video_path, filters_active, remove_duplicates)
 
-    # Clean up by deleting the temporary video file
     os.remove(temp_video_path)
 
     if "error" in results:
         return f"Error processing webcam video: {results['error']}"
 
     return redirect(url_for('results', session_id=results['session_id'], count=len(results['faces'])))    
+
 @app.route('/about')
 def about_page():
     return render_template('about.html')
