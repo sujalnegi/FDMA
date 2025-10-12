@@ -39,6 +39,7 @@ The showcase video where i try all the features while running Face Extractor loc
 ## Local Setup and Installation
 
 Follow these steps to get the application running on your local machine.
+🎥![DEMO VIDEO](https://drive.google.com/file/d/1wP8xjj36HftMPDqjvTUjmBAuF-_YUJQs/view?usp=drive_link)
 
 ### 1. Prerequisites
 
@@ -96,5 +97,9 @@ You should see the **Face Extractor** application running!
 5. After processing, you will be redirected to the **results page** where you can preview all extracted faces.
 6. Click the **"Download All Faces (.zip)"** button to save the results to your computer.
 
+## Author
+- Email: [sujal1negi@gmail.com](mailto:sujal1negi@gmail.com)  
 
+
+- Instagram: [@\_sujal1negi\_](https://www.instagram.com/_sujalnegi_/)
 
