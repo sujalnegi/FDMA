@@ -1,10 +1,12 @@
 # Face Extractor Web Application
+<div align="center">
+  <img src="static/assets/logo.png" alt="Lynx Logo" width="200"/>
+   
+![Face Extractor Screenshot](https://i.ibb.co/23jfq8D0/logo-removebg-preview.jpg)
 
-![Face Extractor Screenshot](https://i.ibb.co/5h5mzTqj/image.png)
+**Face Extractor is a intuitive web application built with Flask and OpenCV that allows users to automatically detect, filter, and extract faces from images, videos, and live webcam streams.**
 
-Face Extractor is a powerful and intuitive web application built with Flask and OpenCV that allows users to automatically detect, filter, and extract high-quality human faces from images, videos, and live webcam streams.
-
-The application is designed with a multi-stage filtering pipeline to ensure that the extracted faces are clear, well-framed, and genuine, making it an ideal tool for collecting data for computer vision projects.
+</div>
 
 ## Features
 
@@ -29,6 +31,10 @@ The application is designed with a multi-stage filtering pipeline to ensure that
 * **Deep Learning Model:** Caffe-based Face Detection Model
 * **Duplicate Detection:** ImageHash, Pillow
 * **Frontend:** HTML5, CSS3 (Flexbox), JavaScript
+
+## Demo Video
+
+The showcase video where i try all the features while running Face Extractor locally
 
 ## Local Setup and Installation
 
@@ -67,7 +73,7 @@ Install all the required Python libraries using `pip`.
 ```bash
 pip install Flask opencv-python numpy werkzeug imagehash Pillow
 ```
-Alternatively, you can use requirements.txt `pip install -r requirements.txt`
+Alternatively, you can use **requirements.txt** `pip install -r requirements.txt`
 
 ### 5. Run the Application
 
@@ -80,15 +86,15 @@ Now, open your web browser and navigate to the following address:
 ```
 http://127.0.0.1:5000/
 ```
-You should see the Face Extractor application running!
+You should see the **Face Extractor** application running!
 
 ### How to Use
 1. Navigate to the desired page using the navbar: "Image", "Video", or "WebCam".
 2. Choose a file or start recording from your webcam.
-3. Select the quality filters you wish to apply. The "Remove Duplicate Faces" option is available for video and webcam modes.
-4. Click the "Extract Faces Now" or "Record 10 Seconds" button.
-5. After processing, you will be redirected to the results page where you can preview all extracted faces.
-6. Click the "Download All Faces (.zip)" button to save the results to your computer.
+3. Select the **quality filters** you wish to apply.
+4. Click the **"Extract Faces Now"** or "Record 10 Seconds" button.
+5. After processing, you will be redirected to the **results page** where you can preview all extracted faces.
+6. Click the **"Download All Faces (.zip)"** button to save the results to your computer.
 
 
 
