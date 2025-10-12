@@ -36,10 +36,11 @@
 
 The showcase video where i try all the features while running Face Extractor locally
 
+🎥![DEMO VIDEO](https://drive.google.com/file/d/1wP8xjj36HftMPDqjvTUjmBAuF-_YUJQs/view?usp=drive_link)
+
 ## Local Setup and Installation
 
 Follow these steps to get the application running on your local machine.
-🎥![DEMO VIDEO](https://drive.google.com/file/d/1wP8xjj36HftMPDqjvTUjmBAuF-_YUJQs/view?usp=drive_link)
 
 ### 1. Prerequisites
 
