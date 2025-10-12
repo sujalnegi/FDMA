@@ -1,6 +1,6 @@
 # Face Extractor Web Application
 
-![Face Extractor Screenshot](https://i.ibb.co/Z1pbx33K/image.png)
+![Face Extractor Screenshot](https://i.ibb.co/5h5mzTqj/image.png)
 
 Face Extractor is a powerful and intuitive web application built with Flask and OpenCV that allows users to automatically detect, filter, and extract high-quality human faces from images, videos, and live webcam streams.
 
