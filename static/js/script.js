@@ -1,42 +1,28 @@
-// script for the index page
-// preview functionality
+
 
 function previewFile() {
     const previewContainer = document.getElementById('file-preview-container');
-    const preview = document.getElementById('image-preview');
-    const fileNameDisplay = document.getElementById('file-name-display');
     const fileInput = document.getElementById('image-upload');
-    const file = fileInput.files[0];
+    const imagePreview = document.getElementById('image-preview');
+    const fileNameDisplay = document.getElementById('file-name-display'); // For the actual file name
+    const fileNameLabel = document.getElementById('file-name-display-label'); // For "No file selected"
 
-    if (file) {
+    if (fileInput.files && fileInput.files[0]) {
         const reader = new FileReader();
+        reader.onload = function (e) {
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(fileInput.files[0]);
 
-        // 1. Display filename
-        fileNameDisplay.textContent = 'File: ' + file.name;
-        
-        // 2. Read file contents for preview
-        reader.onloadend = function () {
-            preview.src = reader.result;
-            preview.style.display = 'block';
-        }
-
-        if (file.type.startsWith('image/')) {
-            reader.readAsDataURL(file);
-        } else {
-            // Handle non-image files
-            preview.src = '#';
-            preview.style.display = 'none';
-            fileNameDisplay.textContent += ' (Not an image file)';
-        }
-
-        // 3. Show the entire preview area
+        fileNameDisplay.textContent = fileInput.files[0].name; // Update hidden name
+        fileNameLabel.textContent = fileInput.files[0].name; // Update visible name label
         previewContainer.style.display = 'block';
-
     } else {
-        
-        previewContainer.style.display = 'none';
-        preview.src = '#';
-        preview.style.display = 'none';
+        imagePreview.src = '#';
+        imagePreview.style.display = 'none';
         fileNameDisplay.textContent = '';
+        fileNameLabel.textContent = 'No file selected.';
+        previewContainer.style.display = 'none';
     }
 }
