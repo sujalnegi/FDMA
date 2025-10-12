@@ -46,3 +46,48 @@ Clone this repository to your local machine using Git:
 ```bash
 git clone [https://github.com/sujalnegi/FDMA.git](https://github.com/sujalnegi/FDMA.git)
 cd FDMA
+```
+### 3. Create a Virtual Environment
+
+It is highly recommended to create a virtual environment to manage project dependencies.
+
+```bash
+# For Windows
+python -m venv venv
+venv\Scripts\activate
+
+# For macOS/Linux
+python3 -m venv venv
+source venv/bin/activate
+```
+### 4. Install Dependencies
+
+Install all the required Python libraries using `pip`.
+
+```bash
+pip install Flask opencv-python numpy werkzeug imagehash Pillow
+```
+Alternatively, you can use requirements.txt `pip install -r requirements.txt`
+
+### 5. Run the Application
+
+Once the setup is complete, you can start the Flask development server:
+```bash
+python app.py
+```
+Now, open your web browser and navigate to the following address:
+
+https://www.google.com/search?q=http://127.0.0.1:5000
+
+You should see the Face Extractor application running!
+
+### How to Use
+1. Navigate to the desired page using the navbar: "Image", "Video", or "WebCam".
+2. Choose a file or start recording from your webcam.
+3. Select the quality filters you wish to apply. The "Remove Duplicate Faces" option is available for video and webcam modes.
+4. Click the "Extract Faces Now" or "Record 10 Seconds" button.
+5. After processing, you will be redirected to the results page where you can preview all extracted faces.
+6. Click the "Download All Faces (.zip)" button to save the results to your computer.
+
+
+
