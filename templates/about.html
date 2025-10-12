@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Face Extractor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico')}}">
+
+    <style>
+        .content-box {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+        }
+
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #34495e;
+            padding-bottom: 5px;
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #2c3e50;
+            margin-top: 15px;
+        }
+
+        p,
+        ul {
+            color: #5d6d7e;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .filter-list li {
+            margin-bottom: 5px;
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="navbar-brand-container">
+            <img class="logo" src="{{url_for('static', filename='images/logo.png')}}" alt="logo">
+        <div class="navbar-brand">Face Extractor</div>
+        </div>
+        <ul class="navbar-links">
+            <li><a href="{{ url_for('home') }}">Image</a></li>
+            <li><a href="{{ url_for('webcam_page') }}">WebCam</a></li>
+            <li><a href="{{ url_for('video_page') }}">Video</a></li>
+        </ul>
+
+    </div>
+
+    <span id="header-span">About Our Face Extraction Tool</span>
+
+    <div class="content-box">
+        <p>
+            Welcome to the Face Extractor application! This tool uses advanced Computer Vision (CV) techniques with
+            <strong>OpenCV</strong> and <strong>Deep Learning Models</strong> to automatically detect, filter, and extract human faces from images
+            and videos. The goal is to provide high-quality, non-blurry, and correctly cropped face images for various
+            data collection needs.
+        </p>
+
+        <h2>The Unified Extraction Pipeline</h2>
+        <p>
+            All three input methods (Image, Webcam, Video) feed into a strict, multi-stage filtering pipeline to ensure
+            output quality. Initial detection is performed using the fast Haar Cascade model, and then every potential
+            face is subjected to the following quality checks:
+        </p>
+
+        <ul class="filter-list">
+            <li><strong>Filter 1: Resolution Check</strong><br>
+                Automatically rejects faces smaller than the <strong>80x80 pixel</strong> threshold to discard low-detail, distant,
+                or irrelevant detections.
+            </li>
+            <li><strong>Filter 2: Blurr Check</strong><br>
+                Uses the <strong>Laplacian Variance</strong> method to measure image sharpness. Faces below the established threshold
+                are auto-rejected to guarantee clear output.
+            </li>
+            <li><strong>Filter 3: DNN Re-check (Accuracy)</strong><br>
+                The cropped face is passed to a high-confidence <strong>Deep Neural Network (DNN)</strong> model. The face is only
+                kept if the model confirms its validity with a confidence score above <strong>90%</strong>, eliminating most false
+                positives.
+            </li>
+        </ul>
+
+        <h2>Input Methods & Process</h2>
+
+        <h3>1. Image Upload</h3>
+        <p>
+            The user uploads a static image file. The backend processes the image once, applies all three filters to the
+            detected faces, saves the resulting crops to a unique session folder, and provides the download link.
+        </p>
+
+        <h3>2. Video File Upload</h3>
+        <p>
+            The user uploads a video file (.mp4, .mov, etc.). The backend opens the video and processes it
+            frame-by-frame. To optimize speed, the script samples every 5th frame, runs the full three-stage filter
+            pipeline on every sampled frame, and consolidates all successfully extracted faces into a single
+            downloadable ZIP file.
+        </p>
+
+        <h3>3. Webcam Capture</h3>
+        <p>
+            The user grants browser access to their webcam. Upon clicking the "Record 10 Seconds" button, the browser
+            captures a live video stream directly from the camera. A 10-second video clip is recorded and encoded
+            in-browser. This entire video clip is then uploaded to the server. The backend seamlessly treats this
+            recording just like a standard video file upload, running it through the exact same frame-by-frame
+            extraction process with all three quality filters applied. All faces that pass the checks are consolidated
+            and provided for download in a single ZIP file.
+        </p>
+    </div>
+</body>
+
+</html>
