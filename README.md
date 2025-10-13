@@ -1,10 +1,10 @@
-# Face Extractor Web Application
+# FDMA
 <div align="center">
   <img src="static/assets/logo.png" alt="Lynx Logo" width="200"/>
    
-![Face Extractor Screenshot](https://i.ibb.co/23jfq8D0/logo-removebg-preview.jpg)
+![Face Extractor Screenshot](static/images/landingpage.png)
 
-**Face Extractor is a intuitive web application built with Flask and OpenCV that allows users to automatically detect, filter, and extract faces from images, videos, and live webcam streams.**
+**Face Extractor is an intuitive web application built with Flask and OpenCV that allows users to automatically detect, filter, and extract faces from images, videos, and live webcam streams.**
 
 </div>
 
@@ -34,9 +34,9 @@
 
 ## Demo Video
 
-The showcase video where i try all the features while running Face Extractor locally
+A showcase video where I try all the features while running Face Extractor locally
 
-🎥![DEMO VIDEO](https://drive.google.com/file/d/1wP8xjj36HftMPDqjvTUjmBAuF-_YUJQs/view?usp=drive_link)
+🎥 [DEMO VIDEO](https://drive.google.com/file/d/1wP8xjj36HftMPDqjvTUjmBAuF-_YUJQs/view?usp=drive_link)
 
 ## Local Setup and Installation
 
@@ -55,6 +55,7 @@ Clone this repository to your local machine using Git:
 git clone https://github.com/sujalnegi/FDMA.git
 cd FDMA
 ```
+
 ### 3. Create a Virtual Environment
 
 It is highly recommended to create a virtual environment to manage project dependencies.
@@ -68,6 +69,7 @@ venv\Scripts\activate
 python3 -m venv venv
 source venv/bin/activate
 ```
+
 ### 4. Install Dependencies
 
 Install all the required Python libraries using `pip`.
@@ -75,32 +77,39 @@ Install all the required Python libraries using `pip`.
 ```bash
 pip install Flask opencv-python numpy werkzeug imagehash Pillow
 ```
-Alternatively, you can use **requirements.txt** `pip install -r requirements.txt`
+
+Alternatively, you can use **requirements.txt**:
+
+```bash
+pip install -r requirements.txt
+```
 
 ### 5. Run the Application
 
 Once the setup is complete, you can start the Flask development server:
+
 ```bash
 python app.py
 ```
+
 Now, open your web browser and navigate to the following address:
 
 ```
 http://127.0.0.1:5000/
 ```
+
 You should see the **Face Extractor** application running!
 
-### How to Use
+## How to Use
+
 1. Navigate to the desired page using the navbar: "Image", "Video", or "WebCam".
 2. Choose a file or start recording from your webcam.
 3. Select the **quality filters** you wish to apply.
-4. Click the **"Extract Faces Now"** or "Record 10 Seconds" button.
+4. Click the **"Extract Faces Now"** or **"Record 10 Seconds"** button.
 5. After processing, you will be redirected to the **results page** where you can preview all extracted faces.
 6. Click the **"Download All Faces (.zip)"** button to save the results to your computer.
 
 ## Author
-- Email: [sujal1negi@gmail.com](mailto:sujal1negi@gmail.com)  
 
-
-- Instagram: [@\_sujal1negi\_](https://www.instagram.com/_sujalnegi_/)
-
+- Email: [sujal1negi@gmail.com](mailto:sujal1negi@gmail.com)
+- Instagram: [@_sujal1negi_](https://www.instagram.com/_sujalnegi_/)
