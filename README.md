@@ -1,8 +1,8 @@
 # FDMA
 <div align="center">
-  <img src="static/assets/logo.png" alt="Lynx Logo" width="200"/>
+  <img src="static/images/logo.png" alt="FDMA Logo" width="200"/>
    
-![Face Extractor Screenshot](static/images/landingpage.png)
+
 
 **Face Extractor is an intuitive web application built with Flask and OpenCV that allows users to automatically detect, filter, and extract faces from images, videos, and live webcam streams.**
 
